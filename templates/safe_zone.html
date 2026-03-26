@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <h2><i class="fas fa-home"></i> Safe Zones</h2>
+  <p class="text-muted">
+    Add places where you feel safe. You'll receive alerts when entering or
+    leaving these zones.
+  </p>
+
+  <div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> Safe zones help you and your contacts
+    know when you're in a trusted location.
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header bg-warning">
+          <h5><i class="fas fa-plus"></i> Add Safe Zone</h5>
+        </div>
+        <div class="card-body">
+          <form id="addZoneForm">
+            <div class="mb-3">
+              <label class="form-label">Zone Name *</label>
+              <input
+                type="text"
+                id="zoneName"
+                class="form-control"
+                placeholder="e.g., Home, Office, Gym"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Address *</label>
+              <input
+                type="text"
+                id="zoneAddress"
+                class="form-control"
+                placeholder="Enter address"
+                required
+              />
+              <small class="text-muted"
+                >We'll get coordinates automatically</small
+              >
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Radius (meters)</label>
+              <input
+                type="number"
+                id="zoneRadius"
+                class="form-control"
+                value="100"
+                min="50"
+                max="500"
+              />
+            </div>
+            <button type="submit" class="btn btn-warning w-100">
+              <i class="fas fa-save"></i> Add Safe Zone
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-dark text-white">
+          <h5><i class="fas fa-list"></i> Your Safe Zones</h5>
+        </div>
+        <div class="card-body" id="zonesList">
+          <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p>Loading safe zones...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card bg-success bg-opacity-10">
+        <div class="card-body">
+          <h6>
+            <i class="fas fa-shield-alt text-success"></i> How Safe Zones Work:
+          </h6>
+          <ul class="mb-0">
+            <li>
+              📍 When you enter a safe zone, you'll receive a welcome
+              notification
+            </li>
+            <li>🚪 When you leave, your contacts can be notified (optional)</li>
+            <li>🏠 Add your home, workplace, and frequently visited places</li>
+            <li>🔔 Safe zone alerts help track your movements</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Load safe zones
+  async function loadSafeZones() {
+    try {
+      const response = await fetch("/api/safezones/get");
+      const zones = await response.json();
+
+      const zonesList = document.getElementById("zonesList");
+
+      if (zones.length === 0) {
+        zonesList.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-home fa-3x text-muted"></i>
+                        <p class="mt-2">No safe zones added yet. Add your first safe zone!</p>
+                    </div>
+                `;
+        return;
+      }
+
+      zonesList.innerHTML = zones
+        .map(
+          (zone) => `
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">
+                                    <i class="fas fa-home text-warning"></i> ${escapeHtml(zone.name)}
+                                </h6>
+                                <p class="mb-0 small">
+                                    <i class="fas fa-map-marker-alt"></i> ${escapeHtml(zone.address || `${zone.latitude}, ${zone.longitude}`)}<br>
+                                    <i class="fas fa-ruler"></i> Radius: ${zone.radius} meters
+                                </p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteZone(${zone.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `,
+        )
+        .join("");
+    } catch (error) {
+      console.error("Error loading safe zones:", error);
+      document.getElementById("zonesList").innerHTML = `
+                <div class="alert alert-danger">
+                    Failed to load safe zones. Please refresh the page.
+                </div>
+            `;
+    }
+  }
+
+  // Add safe zone
+  document
+    .getElementById("addZoneForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("zoneName").value;
+      const address = document.getElementById("zoneAddress").value;
+      const radius = parseInt(document.getElementById("zoneRadius").value);
+
+      // Geocode address to get coordinates
+      try {
+        // For demo, use dummy coordinates
+        // In production, use Google Maps Geocoding API
+        const dummyCoords = {
+          latitude: 13.0827 + Math.random() * 0.01,
+          longitude: 80.2707 + Math.random() * 0.01,
+        };
+
+        const zone = {
+          name: name,
+          latitude: dummyCoords.latitude,
+          longitude: dummyCoords.longitude,
+          address: address,
+          radius: radius,
+        };
+
+        const response = await fetch("/api/safezones/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(zone),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert("✅ Safe zone added successfully!");
+          document.getElementById("addZoneForm").reset();
+          loadSafeZones();
+        } else {
+          alert("❌ Failed to add safe zone: " + result.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Network error. Please try again.");
+      }
+    });
+
+  // Delete safe zone
+  async function deleteZone(zoneId) {
+    if (confirm("Are you sure you want to delete this safe zone?")) {
+      try {
+        const response = await fetch(`/api/safezones/delete/${zoneId}`, {
+          method: "DELETE",
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert("✅ Safe zone deleted successfully!");
+          loadSafeZones();
+        } else {
+          alert("❌ Failed to delete safe zone.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Network error. Please try again.");
+      }
+    }
+  }
+
+  // Helper function
+  function escapeHtml(text) {
+    if (!text) return "";
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Load safe zones on page load
+  loadSafeZones();
+</script>
+{% endblock %}

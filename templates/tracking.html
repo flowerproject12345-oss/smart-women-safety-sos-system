@@ -1,0 +1,289 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <h2><i class="fas fa-map-marker-alt"></i> Live Tracking</h2>
+  <p class="text-muted">Share your real-time location with trusted contacts.</p>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5><i class="fas fa-location-dot"></i> Location Tracker</h5>
+        </div>
+        <div class="card-body text-center">
+          <div id="trackingInfo" class="mb-4">
+            <i class="fas fa-map-marker-alt fa-4x text-primary mb-3"></i>
+            <div id="locationText" class="alert alert-info">
+              <i class="fas fa-spinner fa-spin"></i> Getting your location...
+            </div>
+          </div>
+
+          <div class="btn-group w-100">
+            <button
+              class="btn btn-success btn-lg"
+              onclick="startTracking()"
+              id="startBtn"
+            >
+              <i class="fas fa-play"></i> Start Live Tracking
+            </button>
+            <button
+              class="btn btn-danger btn-lg"
+              onclick="stopTracking()"
+              id="stopBtn"
+              disabled
+            >
+              <i class="fas fa-stop"></i> Stop Tracking
+            </button>
+          </div>
+
+          <div id="trackingStatus" class="mt-3 text-muted small"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header bg-dark text-white">
+          <h5><i class="fas fa-history"></i> Location History</h5>
+        </div>
+        <div class="card-body">
+          <div id="locationHistory" class="list-group">
+            <div class="text-center py-3 text-muted">
+              Start tracking to see location history
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let watchId = null;
+  let trackingActive = false;
+  let locationHistory = [];
+
+  // Start tracking
+  function startTracking() {
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(
+        updateLocation,
+        handleLocationError,
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 10000,
+        },
+      );
+
+      trackingActive = true;
+      document.getElementById("startBtn").disabled = true;
+      document.getElementById("stopBtn").disabled = false;
+      document.getElementById("trackingStatus").innerHTML =
+        "📍 Tracking active - Sharing your location";
+
+      // Start tracking session on server
+      fetch("/api/tracking/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      showNotification(
+        "📍 Tracking Started",
+        "Your location is now being shared with your emergency contacts.",
+      );
+    } else {
+      alert("❌ Geolocation is not supported by your browser.");
+    }
+  }
+
+  // Stop tracking
+  function stopTracking() {
+    if (watchId) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+
+    trackingActive = false;
+    document.getElementById("startBtn").disabled = false;
+    document.getElementById("stopBtn").disabled = true;
+    document.getElementById("trackingStatus").innerHTML = "⏹️ Tracking stopped";
+
+    // Stop tracking session on server
+    fetch("/api/tracking/stop", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    showNotification(
+      "📍 Tracking Stopped",
+      "Location sharing has been turned off.",
+    );
+  }
+
+  // Update location
+  async function updateLocation(position) {
+    const lat = position.coords.latitude.toFixed(6);
+    const lng = position.coords.longitude.toFixed(6);
+    const accuracy = position.coords.accuracy;
+
+    const timestamp = new Date().toLocaleTimeString();
+
+    document.getElementById("locationText").innerHTML = `
+            <strong>📍 Current Location:</strong><br>
+            Latitude: ${lat}<br>
+            Longitude: ${lng}<br>
+            Accuracy: ${Math.round(accuracy)} meters<br>
+            <small class="text-muted">Last update: ${timestamp}</small>
+        `;
+
+    // Send location to server
+    try {
+      const response = await fetch("/api/tracking/update-location", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: accuracy,
+        }),
+      });
+
+      const result = await response.json();
+
+      // Add to history
+      locationHistory.unshift({
+        lat: lat,
+        lng: lng,
+        time: timestamp,
+        address: result.address,
+      });
+
+      // Keep only last 10 locations
+      if (locationHistory.length > 10) {
+        locationHistory.pop();
+      }
+
+      updateHistoryDisplay();
+
+      // Check safe zone alerts
+      if (result.safe_zone_alerts && result.safe_zone_alerts.length > 0) {
+        result.safe_zone_alerts.forEach((alert) => {
+          showNotification(
+            "🏠 Safe Zone Alert",
+            `You are near ${alert.zone_name} (${alert.distance}m away)`,
+          );
+        });
+      }
+    } catch (error) {
+      console.error("Error sending location:", error);
+    }
+  }
+
+  // Update history display
+  function updateHistoryDisplay() {
+    const historyDiv = document.getElementById("locationHistory");
+
+    if (locationHistory.length === 0) {
+      historyDiv.innerHTML =
+        '<div class="text-center py-3 text-muted">No location updates yet</div>';
+      return;
+    }
+
+    historyDiv.innerHTML = locationHistory
+      .map(
+        (loc) => `
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-map-pin text-danger"></i>
+                        <strong>${loc.lat}, ${loc.lng}</strong>
+                        ${loc.address ? `<br><small class="text-muted">${loc.address}</small>` : ""}
+                    </div>
+                    <small class="text-muted">${loc.time}</small>
+                </div>
+            </div>
+        `,
+      )
+      .join("");
+  }
+
+  // Handle location error
+  function handleLocationError(error) {
+    let message = "";
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        message =
+          "❌ Location permission denied. Please enable location access.";
+        break;
+      case error.POSITION_UNAVAILABLE:
+        message = "❌ Location information unavailable.";
+        break;
+      case error.TIMEOUT:
+        message = "❌ Location request timed out.";
+        break;
+      default:
+        message = "❌ An unknown error occurred.";
+    }
+
+    document.getElementById("locationText").innerHTML = message;
+    console.error("Location error:", message);
+  }
+
+  // Get initial location
+  function getInitialLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+          document.getElementById("locationText").innerHTML = `
+                        <strong>📍 Your Current Location:</strong><br>
+                        Latitude: ${lat}<br>
+                        Longitude: ${lng}<br>
+                        <small>Click "Start Live Tracking" to share your location</small>
+                    `;
+        },
+        () => {
+          document.getElementById("locationText").innerHTML =
+            "📍 Unable to get your location. Please enable GPS.";
+        },
+      );
+    }
+  }
+
+  // Show notification
+  function showNotification(title, message) {
+    const toast = document.createElement("div");
+    toast.className = "toast-notification";
+    toast.innerHTML = `
+            <div class="toast-header bg-${title.includes("Started") ? "success" : "info"} text-white">
+                <strong>${title}</strong>
+                <button type="button" class="btn-close btn-close-white ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+  }
+
+  // Initialize
+  getInitialLocation();
+
+  // Check tracking status on page load
+  async function checkTrackingStatus() {
+    try {
+      const response = await fetch("/api/tracking/status");
+      const data = await response.json();
+      if (data.is_tracking) {
+        startTracking();
+      }
+    } catch (error) {
+      console.error("Error checking tracking status:", error);
+    }
+  }
+
+  checkTrackingStatus();
+</script>
+{% endblock %}

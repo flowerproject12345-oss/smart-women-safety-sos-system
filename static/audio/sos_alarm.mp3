@@ -1,0 +1,2 @@
+<!-- Create a simple alarm sound using Web Audio API as fallback -->
+<!-- The sos.js includes a Web Audio fallback -->

@@ -1,0 +1,211 @@
+{% extends "base.html" %} {% block content %}
+<section class="hero-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8" data-aos="fade-up">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-header bg-white border-0 pt-4">
+            <h3 class="fw-bold">
+              <i class="fas fa-user-circle"></i> Your Profile Details
+            </h3>
+            <p class="text-muted">Manage your personal information</p>
+          </div>
+          <div class="card-body p-4">
+            <form id="profileForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Full Name</label>
+                  <input
+                    type="text"
+                    id="fullname"
+                    class="form-control"
+                    value="Sarah Johnson"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    value="sarah@example.com"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Phone Number</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    class="form-control"
+                    value="+1 234 567 8900"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Date of Birth</label>
+                  <input
+                    type="date"
+                    id="dob"
+                    class="form-control"
+                    value="1995-06-15"
+                  />
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold">Address</label>
+                  <textarea id="address" class="form-control" rows="2">
+123 Safety Street, New York, NY 10001</textarea
+                  >
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold">Blood Group</label>
+                  <select id="bloodGroup" class="form-control">
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                  </select>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold"
+                    >Medical Conditions (Optional)</label
+                  >
+                  <textarea
+                    id="medical"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Any allergies or medical conditions"
+                  ></textarea>
+                </div>
+              </div>
+              <hr />
+              <div class="text-end">
+                <button type="submit" class="btn btn-primary-custom px-4">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById("profileForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    alert("✅ Profile updated successfully!");
+  });
+</script>
+{% endblock %}{% extends "base.html" %} {% block content %}
+<section class="hero-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8" data-aos="fade-up">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-header bg-white border-0 pt-4">
+            <h3 class="fw-bold">
+              <i class="fas fa-user-circle"></i> Your Profile Details
+            </h3>
+            <p class="text-muted">Manage your personal information</p>
+          </div>
+          <div class="card-body p-4">
+            <form id="profileForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Full Name</label>
+                  <input
+                    type="text"
+                    id="fullname"
+                    class="form-control"
+                    value="Sarah Johnson"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    value="sarah@example.com"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Phone Number</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    class="form-control"
+                    value="+1 234 567 8900"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Date of Birth</label>
+                  <input
+                    type="date"
+                    id="dob"
+                    class="form-control"
+                    value="1995-06-15"
+                  />
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold">Address</label>
+                  <textarea id="address" class="form-control" rows="2">
+123 Safety Street, New York, NY 10001</textarea
+                  >
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold">Blood Group</label>
+                  <select id="bloodGroup" class="form-control">
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                  </select>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold"
+                    >Medical Conditions (Optional)</label
+                  >
+                  <textarea
+                    id="medical"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Any allergies or medical conditions"
+                  ></textarea>
+                </div>
+              </div>
+              <hr />
+              <div class="text-end">
+                <button type="submit" class="btn btn-primary-custom px-4">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById("profileForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    alert("✅ Profile updated successfully!");
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SheShield - Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+      }
+
+      .navbar {
+        background: linear-gradient(135deg, #ff6b6b, #c92a2a);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .dashboard-container {
+        padding-top: 80px;
+        padding-bottom: 50px;
+      }
+
+      .welcome-card {
+        background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+        border-radius: 20px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-number {
+        font-size: 36px;
+        font-weight: bold;
+        color: #ff6b6b;
+      }
+
+      .action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .action-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+      }
+
+      .btn-sos {
+        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: bold;
+      }
+
+      .sos-floating-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #ff6b6b, #c92a2a);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(220, 53, 69, 0.4);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+        border: none;
+        color: white;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+      }
+
+      .activity-item {
+        border-left: 3px solid #ff6b6b;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+        border-radius: 10px;
+      }
+
+      footer {
+        background: #2c3e50;
+        color: white;
+        padding: 30px 0;
+        margin-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating SOS Button -->
+    <button class="sos-floating-btn" id="sosBtn">
+      <div class="text-center">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+        <div style="font-size: 10px">SOS</div>
+      </div>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-shield-alt"></i> SheShield
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/outlook">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/howitworks">How It Works</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/why">Why SheShield</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+      <div class="container">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1 class="display-4 fw-bold">
+                <i class="fas fa-user-shield"></i> Welcome to SheShield!
+              </h1>
+              <p class="lead">
+                Your safety companion. Always ready to protect you.
+              </p>
+              <div class="mt-3">
+                <span class="badge bg-light text-dark px-3 py-2 me-2">
+                  <i class="fas fa-check-circle text-success"></i> Active
+                  Protection
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                  <i class="fas fa-shield-alt text-danger"></i> SOS Ready
+                </span>
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <i class="fas fa-female fa-5x"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-5">
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <i class="fas fa-address-book fa-3x text-primary mb-2"></i>
+              <div class="stat-number">3</div>
+              <div class="text-muted">Emergency Contacts</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <i class="fas fa-home fa-3x text-success mb-2"></i>
+              <div class="stat-number">2</div>
+              <div class="text-muted">Safe Zones</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <i
+                class="fas fa-exclamation-triangle fa-3x text-warning mb-2"
+              ></i>
+              <div class="stat-number" id="sosCount">0</div>
+              <div class="text-muted">SOS Alerts</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <i class="fas fa-location-dot fa-3x text-danger mb-2"></i>
+              <div class="stat-number">Off</div>
+              <div class="text-muted">Live Tracking</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h3 class="fw-bold mb-4 text-white">
+          <i class="fas fa-bolt text-warning"></i> Quick Actions
+        </h3>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="action-card" onclick="triggerSOS()">
+              <div class="action-icon text-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <h4>Emergency SOS</h4>
+              <p class="text-muted">Press and hold for 3 seconds</p>
+              <button
+                class="btn btn-danger btn-sm"
+                onclick="
+                  event.stopPropagation();
+                  triggerSOS();
+                "
+              >
+                <i class="fas fa-bell"></i> Trigger SOS
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div
+              class="action-card"
+              onclick="
+                alert(
+                  '📍 Live Tracking Feature - Share your location with trusted contacts',
+                )
+              "
+            >
+              <div class="action-icon text-primary">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <h4>Live Tracking</h4>
+              <p class="text-muted">Share your real-time location</p>
+              <button class="btn btn-primary btn-sm">
+                <i class="fas fa-play"></i> Start Tracking
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div
+              class="action-card"
+              onclick="
+                alert(
+                  '📞 Fake Call Feature - Simulate a call to escape uncomfortable situations',
+                )
+              "
+            >
+              <div class="action-icon text-success">
+                <i class="fas fa-phone-alt"></i>
+              </div>
+              <h4>Fake Call</h4>
+              <p class="text-muted">Escape uncomfortable situations</p>
+              <button class="btn btn-success btn-sm">
+                <i class="fas fa-phone"></i> Setup Call
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div
+              class="action-card"
+              onclick="
+                alert(
+                  '👥 Emergency Contacts - Add your trusted contacts who will receive SOS alerts',
+                )
+              "
+            >
+              <div class="action-icon text-info">
+                <i class="fas fa-address-book"></i>
+              </div>
+              <h4>Manage Contacts</h4>
+              <p class="text-muted">Add or edit emergency contacts</p>
+              <button class="btn btn-info btn-sm text-white">
+                <i class="fas fa-edit"></i> Manage
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div
+              class="action-card"
+              onclick="alert('🏠 Safe Zones - Add places where you feel safe')"
+            >
+              <div class="action-icon text-warning">
+                <i class="fas fa-home"></i>
+              </div>
+              <h4>Safe Zones</h4>
+              <p class="text-muted">Mark your safe places</p>
+              <button class="btn btn-warning btn-sm">
+                <i class="fas fa-plus"></i> Add Zones
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div
+              class="action-card"
+              onclick="
+                alert('📊 Alert History - View all your past SOS alerts')
+              "
+            >
+              <div class="action-icon text-secondary">
+                <i class="fas fa-history"></i>
+              </div>
+              <h4>Alert History</h4>
+              <p class="text-muted">View past SOS alerts</p>
+              <button class="btn btn-secondary btn-sm">
+                <i class="fas fa-list"></i> View History
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <h3 class="fw-bold mb-4 text-white">
+          <i class="fas fa-history"></i> Recent Activity
+        </h3>
+
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-body p-4">
+            <div class="activity-item">
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <i class="fas fa-check-circle text-success fa-lg"></i>
+                </div>
+                <div>
+                  <p class="mb-0 fw-bold">Welcome to SheShield!</p>
+                  <small class="text-muted"
+                    >Your safety dashboard is ready</small
+                  >
+                </div>
+                <div class="ms-auto">
+                  <small class="text-muted">Just now</small>
+                </div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="d-flex align-items-center">
+                <div class="me-3">
+                  <i class="fas fa-shield-alt text-danger fa-lg"></i>
+                </div>
+                <div>
+                  <p class="mb-0 fw-bold">SOS Button Active</p>
+                  <small class="text-muted"
+                    >Press and hold for 3 seconds to trigger alert</small
+                  >
+                </div>
+                <div class="ms-auto">
+                  <small class="text-muted">Active</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety Tips -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="alert alert-warning">
+              <i class="fas fa-lightbulb"></i>
+              <strong> Safety Tips:</strong>
+              <ul class="mb-0 mt-2">
+                <li>📱 Keep your phone charged and accessible</li>
+                <li>👥 Add family members as emergency contacts</li>
+                <li>🏠 Set your home and office as safe zones</li>
+                <li>🚨 Practice using the SOS button</li>
+                <li>📞 Use Fake Call to escape uncomfortable situations</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container text-center">
+        <p class="mb-0">&copy; 2024 SheShield - Women Safety SOS System</p>
+        <small>Your Safety, Our Priority</small>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // SOS Button Functionality
+      let pressTimer = null;
+      const sosBtn = document.getElementById("sosBtn");
+
+      function startPress() {
+        pressTimer = setTimeout(() => {
+          triggerSOS();
+        }, 3000);
+      }
+
+      function cancelPress() {
+        if (pressTimer) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+      }
+
+      function triggerSOS() {
+        if (
+          confirm(
+            "🚨 EMERGENCY SOS!\n\nThis will alert all your emergency contacts with your location.\n\nContinue?",
+          )
+        ) {
+          // Simulate SOS alert
+          alert(
+            "✅ SOS Alert Sent!\n\nYour emergency contacts have been notified.\n\nHelp is on the way.",
+          );
+
+          // Update SOS count
+          let sosCount = document.getElementById("sosCount");
+          let currentCount = parseInt(sosCount.innerText);
+          sosCount.innerText = currentCount + 1;
+
+          // Add to activity
+          addActivity(
+            "SOS Alert",
+            "Emergency SOS triggered - Contacts notified",
+          );
+        }
+      }
+
+      function addActivity(title, message) {
+        const activityDiv = document.querySelector(".card-body");
+        const newActivity = document.createElement("div");
+        newActivity.className = "activity-item";
+        newActivity.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-bell text-danger fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 fw-bold">${title}</p>
+                        <small class="text-muted">${message}</small>
+                    </div>
+                    <div class="ms-auto">
+                        <small class="text-muted">Just now</small>
+                    </div>
+                </div>
+            `;
+        activityDiv.insertBefore(newActivity, activityDiv.firstChild);
+      }
+
+      sosBtn.addEventListener("mousedown", startPress);
+      sosBtn.addEventListener("mouseup", cancelPress);
+      sosBtn.addEventListener("mouseleave", cancelPress);
+      sosBtn.addEventListener("touchstart", startPress);
+      sosBtn.addEventListener("touchend", cancelPress);
+
+      // Make triggerSOS global
+      window.triggerSOS = triggerSOS;
+    </script>
+  </body>
+</html>
